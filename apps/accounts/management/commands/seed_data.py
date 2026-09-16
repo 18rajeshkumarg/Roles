@@ -40,8 +40,8 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('=' * 50))
         self.stdout.write(self.style.SUCCESS('\nLogin credentials:'))
         self.stdout.write(self.style.SUCCESS('  Admin: admin / admin123'))
-        self.stdout.write(self.style.SUCCESS('  Manager: manager / manager123'))
-        self.stdout.write(self.style.SUCCESS('  Employee: employee / employee123'))
+        self.stdout.write(self.style.SUCCESS('  Manager sample: eng_mgr / eng_mgr123'))
+        self.stdout.write(self.style.SUCCESS('  Employee sample: dev1 / dev1123'))
     
     def _create_organization_levels(self):
         self.stdout.write('\nCreating organization levels...')
@@ -79,10 +79,16 @@ class Command(BaseCommand):
         
         departments = {}
         for dept_data in departments_data:
-            dept, created = Department.objects.get_or_create(
-                code=dept_data['code'],
-                defaults=dept_data
-            )
+            dept = Department.objects.filter(code=dept_data['code']).first()
+            if dept is None:
+                dept = Department.objects.filter(name=dept_data['name']).first()
+            if dept is None:
+                dept = Department.objects.create(**dept_data)
+            else:
+                dept.name = dept_data['name']
+                dept.code = dept_data['code']
+                dept.description = dept_data['description']
+                dept.save(update_fields=['name', 'code', 'description', 'updated_at'])
             departments[dept_data['code']] = dept
             self.stdout.write(f'  ✓ {dept.name}')
         
