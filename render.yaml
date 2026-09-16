@@ -18,13 +18,5 @@ services:
         value: '*'
       - key: SECRET_KEY
         generateValue: true
-      - key: POSTGRES_DB
+      - key: DATABASE_URL
         sync: false
-      - key: POSTGRES_USER
-        sync: false
-      - key: POSTGRES_PASSWORD
-        sync: false
-      - key: POSTGRES_HOST
-        sync: false
-      - key: POSTGRES_PORT
-        value: '5432'
