@@ -5,8 +5,7 @@ services:
     branch: master
     region: virginia
     plan: free
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    preDeployCommand: python manage.py migrate --noinput
+    buildCommand: pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput
     startCommand: gunicorn core.wsgi:application
     healthCheckPath: /login/
     autoDeploy: true
