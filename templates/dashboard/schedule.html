@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Schedule - {{ organization_name|default:"IT Org" }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1><i class="fas fa-calendar-alt"></i> Schedule</h1>
+        <p>Manage Events and Leave Requests</p>
+    </div>
+    
+    <div class="row">
+        <!-- Upcoming Events -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-calendar"></i> Upcoming Events</h5>
+                </div>
+                <div class="card-body">
+                    {% if events %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Event</th>
+                                        <th>Date & Time</th>
+                                        <th>Status</th>
+                                        <th>Location</th>
+                                        <th>Meeting Link</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for event in events %}
+                                        <tr>
+                                            <td><strong>{{ event.title }}</strong><br><small class="text-muted">{{ event.get_event_type_display }}</small></td>
+                                            <td>{{ event.start_datetime|date:"M d, Y" }}<br><small>{{ event.start_datetime|date:"H:i" }} - {{ event.end_datetime|date:"H:i" }}</small></td>
+                                            <td>
+                                                {% if event.time_status == 'SCHEDULED' %}
+                                                    <span class="badge bg-primary">Scheduled</span>
+                                                {% elif event.time_status == 'IN_PROGRESS' %}
+                                                    <span class="badge bg-success"><i class="fas fa-circle"></i> Live Now</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Completed</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ event.location|default:"-" }}</td>
+                                            <td>
+                                                {% if event.time_status == 'IN_PROGRESS' and event.meeting_link %}
+                                                    <a href="{{ event.meeting_link }}" target="_blank" class="btn btn-sm btn-success"><i class="fas fa-video"></i> Join Now</a>
+                                                {% elif event.time_status == 'SCHEDULED' and event.meeting_link %}
+                                                    <a href="{{ event.meeting_link }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-video"></i> Join</a>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No upcoming events</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pending Leave Requests -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-plane"></i> Pending Leave Requests</h5>
+                </div>
+                <div class="card-body">
+                    {% if pending_leaves %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for leave in pending_leaves %}
+                                        <tr>
+                                            <td>{{ leave.employee.first_name }} {{ leave.employee.last_name }}</td>
+                                            <td>{{ leave.start_date }}</td>
+                                            <td>{{ leave.end_date }}</td>
+                                            <td>{{ leave.reason|truncatechars:30 }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No pending leave requests</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
