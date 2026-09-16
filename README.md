@@ -302,6 +302,20 @@ IT Tech Organisation Management System/
 
 ## Getting Started
 
+### React Frontend
+
+The repository includes a React frontend in `frontend/`. The existing Django project remains the API backend.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend is built and deployed automatically to GitHub Pages by `.github/workflows/frontend-pages.yml` whenever `frontend/` changes on `master`. Enable **Settings -> Pages -> GitHub Actions** in the repository, then the published URL will be:
+
+`https://18rajeshkumarg.github.io/Roles/`
+
 ### 1. Clone and Setup
 ```bash
 git clone <repository-url>
