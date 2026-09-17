@@ -294,6 +294,18 @@ class TestAttempt(models.Model):
     def __str__(self):
         return f"{self.candidate.full_name} - {self.test.name}"
 
+    @property
+    def correct_answers(self):
+        return self.answers.filter(is_correct=True).count()
+
+    @property
+    def total_questions(self):
+        return self.test.total_questions or self.answers.count()
+
+    @property
+    def result_status(self):
+        return 'PASSED' if self.is_passed else 'FAILED'
+
 
 class ProctoringLog(models.Model):
     attempt = models.ForeignKey(TestAttempt, on_delete=models.CASCADE, related_name='logs')

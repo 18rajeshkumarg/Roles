@@ -56,12 +56,12 @@ class ITOrgAdminSite(admin.AdminSite):
 site = ITOrgAdminSite(name='admin')
 
 # Register models
-from django.contrib.auth.models import User, Group
-site.register(User)
+from django.contrib.auth.models import Group
+
 site.register(Group)
 
 from apps.accounts.models import CustomUser, OrganizationLevel
-from apps.employees.models import Employee, WorkLog, Attendance, LeaveRequest, Announcement, Event, Project, Notification
+from apps.employees.models import Employee, WorkLog, Attendance, LeaveRequest, Announcement, Event, Project, Notification, Payroll, Candidate, AptitudeTest, Question, TestAttempt, Answer, ProctoringLog, ChatBotConversation
 from apps.departments.models import Department
 from apps.roles.models import Role
 
@@ -77,6 +77,14 @@ site.register(Project)
 site.register(Notification)
 site.register(Department)
 site.register(Role)
+site.register(Payroll)
+site.register(Candidate)
+site.register(AptitudeTest)
+site.register(Question)
+site.register(TestAttempt)
+site.register(Answer)
+site.register(ProctoringLog)
+site.register(ChatBotConversation)
 
 from apps.employees.models import OrganizationSettings
 site.register(OrganizationSettings)

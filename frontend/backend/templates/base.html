@@ -136,7 +136,7 @@
     function loadNotifications() {
         fetch('/api/employees/notifications/', {
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+                'Authorization': 'Bearer ' + (localStorage.getItem('roles_access_token') || ''),
                 'X-CSRFToken': '{{ csrf_token }}'
             }
         })
@@ -168,7 +168,7 @@
         fetch('/api/employees/notifications/mark_read/', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+                'Authorization': 'Bearer ' + (localStorage.getItem('roles_access_token') || ''),
                 'X-CSRFToken': '{{ csrf_token }}',
                 'Content-Type': 'application/json'
             },
@@ -184,7 +184,7 @@
         fetch('/api/employees/notifications/mark_all_read/', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+                'Authorization': 'Bearer ' + (localStorage.getItem('roles_access_token') || ''),
                 'X-CSRFToken': '{{ csrf_token }}'
             }
         }).then(() => loadNotifications());

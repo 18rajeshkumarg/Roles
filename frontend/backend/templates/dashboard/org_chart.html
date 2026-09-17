@@ -274,7 +274,7 @@ function resetZoom() {
     );
 }
 
-fetch('/api/dashboard/org-chart/')
+fetch('/api/org-chart/')
     .then(response => response.json())
     .then(data => initOrgChart(data))
     .catch(error => {

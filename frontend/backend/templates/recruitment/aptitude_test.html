@@ -300,7 +300,7 @@
                 videoStream.getTracks().forEach(track => track.stop());
             }
             alert('Test Terminated: ' + reason);
-            window.location.href = '/candidate/result/';
+            window.location.href = '/candidate/test/';
         }
         
         function submitTest() {
@@ -322,7 +322,7 @@
                 }).then(response => response.json())
                 .then(data => {
                     alert('Test Submitted!\nScore: ' + data.score + '/' + data.total_marks + '\nPercentage: ' + data.percentage.toFixed(2) + '%\nResult will be available on: ' + data.result_will_be_released_on);
-                    window.location.href = '/candidate/result/';
+                    window.location.href = '/candidate/test/';
                 });
             }
         }

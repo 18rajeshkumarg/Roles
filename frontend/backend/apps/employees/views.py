@@ -579,7 +579,9 @@ class TestAttemptViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def my_results(self, request):
-        candidate = request.user.candidate
+        candidate = getattr(request.user, 'candidate', None)
+        if candidate is None:
+            return Response([])
         attempts = TestAttempt.objects.filter(candidate=candidate)
         
         results = []

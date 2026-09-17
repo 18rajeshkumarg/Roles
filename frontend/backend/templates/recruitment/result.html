@@ -11,7 +11,7 @@
                 <div class="card-body">
                     <div class="text-center mb-4">
                         <h5>{{ attempt.candidate.user.get_full_name }}</h5>
-                        <p class="text-muted">{{ attempt.test.title }}</p>
+                        <p class="text-muted">{{ attempt.test.name }}</p>
                     </div>
                     
                     <div class="row text-center mb-4">
@@ -35,7 +35,7 @@
                         </div>
                     </div>
                     
-                    {% if attempt.status == 'PASSED' %}
+                    {% if attempt.is_passed %}
                         <div class="alert alert-success">
                             <h5>Congratulations! You have passed the test.</h5>
                             <p class="mb-0">HR team will contact you soon for further process.</p>

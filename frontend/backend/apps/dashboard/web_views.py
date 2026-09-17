@@ -7,7 +7,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.response import Response
 from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Count
@@ -19,11 +18,6 @@ from apps.departments.models import Department
 from apps.roles.models import Role
 from apps.accounts.models import OrganizationLevel
 from datetime import timedelta
-
-
-def logout_view(request):
-    logout(request)
-    return redirect('login')
 
 
 def schedule_view(request):
@@ -575,23 +569,23 @@ def candidate_test_view(request):
     try:
         attempt = TestAttempt.objects.filter(
             candidate=candidate,
-            status='APPROVED'
-        ).first()
-        
+            started_at__isnull=True
+        ).order_by('-id').first()
+
         if not attempt:
             messages.info(request, 'No test assigned yet. Please wait for HR to approve your application.')
             return render(request, 'recruitment/waiting.html')
-        
+
         # Check if already completed
         if attempt.completed_at:
-            if timezone.now() >= attempt.result_release_date:
+            if attempt.result_release_date and timezone.now() >= attempt.result_release_date:
                 return render(request, 'recruitment/result.html', {
                     'attempt': attempt,
                     'show_result': True
                 })
             else:
                 return render(request, 'recruitment/waiting.html', {
-                    'message': f'Result will be available on {attempt.result_release_date.strftime("%Y-%m-%d %H:%M")}'
+                    'message': f'Result will be available on {attempt.result_release_date.strftime("%Y-%m-%d %H:%M") if attempt.result_release_date else "TBD"}'
                 })
         
         # Start test
@@ -601,7 +595,20 @@ def candidate_test_view(request):
         return render(request, 'recruitment/aptitude_test.html', {
             'test': test,
             'questions': questions,
-            'questions_json': [q.question_text for q in questions],
+            'questions_json': [
+                {
+                    'id': q.id,
+                    'question_text': q.question_text,
+                    'category': q.category,
+                    'difficulty': q.difficulty,
+                    'option_a': q.option_a,
+                    'option_b': q.option_b,
+                    'option_c': q.option_c,
+                    'option_d': q.option_d,
+                    'correct_answer': q.correct_answer,
+                }
+                for q in questions
+            ],
             'total_questions': len(questions),
             'duration_minutes': test.duration_minutes,
             'attempt_id': attempt.id,
