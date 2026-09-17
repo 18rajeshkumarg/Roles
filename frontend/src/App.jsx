@@ -8,6 +8,7 @@ const navigation = [
   { label: 'Roles', icon: '✦' },
   { label: 'Attendance', icon: '◷' },
   { label: 'Payroll', icon: '▤' },
+  { label: 'Admin Panel', icon: '⚙' },
 ]
 
 const metrics = [
@@ -50,7 +51,7 @@ function App() {
           <div className="topbar-actions"><button className="icon-button" aria-label="Search">⌕</button><button className="notification" aria-label="Notifications">♢<span /></button><button className="avatar" onClick={() => setMenuOpen(!menuOpen)}>{(user.first_name?.[0] || user.username?.[0] || 'U')}{user.last_name?.[0] || ''}</button>{menuOpen && <div className="profile-menu"><strong>{user.first_name} {user.last_name}</strong><span>{user.email}</span><button onClick={signOut}>Sign out</button></div>}</div>
         </header>
 
-        {activePage === 'Overview' ? <Overview /> : <Placeholder page={activePage} />}
+        {activePage === 'Overview' ? <Overview /> : activePage === 'Admin Panel' ? <AdminPanel user={user} /> : <Placeholder page={activePage} />}
       </main>
     </div>
   )
@@ -77,7 +78,7 @@ function Login({ onLogin }) {
     }
   }
 
-  return <main className="login-page"><div className="login-art"><span className="eyebrow light">IT organization management</span><h1>Build a workplace that knows where it is going.</h1><p>People, roles, departments, and momentum in one considered workspace.</p></div><form className="login-card" onSubmit={submit}><div className="brand-mark login-brand"><span>R</span><div><strong>Roles</strong><small>Organization workspace</small></div></div><span className="eyebrow">Welcome back</span><h2>Sign in to your workspace</h2><label>Username<input value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" required /></label><label>Password<input value={password} onChange={(event) => setPassword(event.target.value)} type="password" autoComplete="current-password" required /></label>{error && <p className="form-error">{error}</p>}<button className="primary-button submit-button" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button><small className="login-note">Use the Django account credentials configured for this project.</small></form></main>
+  return <main className="login-page"><div className="login-art"><span className="eyebrow light">IT organization management</span><h1>Build a workplace that knows where it is going.</h1><p>People, roles, departments, and momentum in one considered workspace.</p></div><form className="login-card" onSubmit={submit}><div className="brand-mark login-brand"><span>R</span><div><strong>Roles</strong><small>React workspace</small></div></div><span className="eyebrow">Welcome back</span><h2>Sign in to your workspace</h2><label>Username<input value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" required /></label><label>Password<input value={password} onChange={(event) => setPassword(event.target.value)} type="password" autoComplete="current-password" required /></label>{error && <p className="form-error">{error}</p>}<button className="primary-button submit-button" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button><small className="login-note">React-only demo data is stored in this browser.</small></form></main>
 }
 
 function Overview() {
@@ -87,11 +88,11 @@ function Overview() {
   const stats = data?.stats
   const metrics = stats ? [{ label: 'Total people', value: stats.total_employees, change: `${stats.active_employees} active`, tone: 'green' }, { label: 'Departments', value: stats.total_departments, change: 'Across organization', tone: 'blue' }, { label: 'Roles', value: stats.total_roles, change: 'Defined positions', tone: 'orange' }] : metricsFallback
   return <section className="page-body">
-    <div className="welcome-band"><div><span className="eyebrow light">Django-connected workspace</span><h2>Your organization at a glance.</h2><p>Live data from the existing Roles REST API.</p></div><button className="primary-button">+ Add person</button></div>
-    {error && <div className="api-warning">{error} Start Django on port 8000 and sign in again.</div>}
+    <div className="welcome-band"><div><span className="eyebrow light">React-only workspace</span><h2>Your organization at a glance.</h2><p>Live browser data with no backend process required.</p></div><button className="primary-button">+ Add person</button></div>
+    {error && <div className="api-warning">{error}</div>}
     <div className="metric-grid">{metrics.map((metric) => <article className={`metric-card ${metric.tone}`} key={metric.label}><span>{metric.label}</span><strong>{metric.value}</strong><small>{metric.change}</small></article>)}</div>
     <div className="content-grid"><article className="panel chart-panel"><div className="panel-heading"><div><span className="eyebrow">People overview</span><h3>Team growth</h3></div><button className="select-button">Last 6 months⌄</button></div><div className="chart"><div className="chart-line" /><div className="chart-labels"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></div></div></article><article className="panel"><div className="panel-heading"><div><span className="eyebrow">Organization</span><h3>By department</h3></div><button className="more-button">•••</button></div><div className="department-list"><Department name="Engineering" count="86" width="86%" color="green" /><Department name="Product & Design" count="42" width="58%" color="orange" /><Department name="Operations" count="38" width="49%" color="blue" /><Department name="People & Finance" count="27" width="34%" color="red" /></div></article></div>
-    <div className="section-heading"><div><span className="eyebrow">Keep moving</span><h3>Recent employees</h3></div></div><div className="activity-list">{data?.recent_employees?.length ? data.recent_employees.map((employee) => <Activity key={employee.id} initials={employee.name.slice(0, 2).toUpperCase()} name={employee.name} action={`${employee.role} · ${employee.department}`} time={employee.date_joined || ''} />) : <p className="muted empty-list">No recent employee data returned.</p>}</div>
+    <div className="section-heading"><div><span className="eyebrow">Keep moving</span><h3>Recent employees</h3></div></div><div className="activity-list">{data?.recent_employees?.length ? data.recent_employees.map((employee) => { const name = employee.name || employee.full_name || 'Employee'; return <Activity key={employee.id} initials={name.slice(0, 2).toUpperCase()} name={name} action={`${employee.role || employee.role_title || 'Team member'} · ${employee.department || employee.department_name || 'Organization'}`} time={employee.date_joined || ''} /> }) : <p className="muted empty-list">No recent employee data returned.</p>}</div>
   </section>
 }
 
@@ -108,7 +109,11 @@ function Placeholder({ page }) {
   const [error, setError] = useState('')
   useEffect(() => { setResult(null); setError(''); fetchModule(page).then(setResult).catch((requestError) => setError(requestError.message)) }, [page])
   const rows = Array.isArray(result) ? result : result?.results || []
-  return <section className="page-body"><div className="empty-state"><span className="empty-icon">✦</span><span className="eyebrow">Live Django module</span><h2>{page}</h2><p>Records loaded from the existing REST endpoint.</p></div>{error && <div className="api-warning">{error}</div>}<div className="data-table">{rows.length ? rows.map((row) => <div className="data-row" key={row.id}><strong>{row.full_name || row.title || row.name || row.employee_id || row.id}</strong><span>{row.email || row.department_name || row.display_level || row.status || 'Record'}</span><span>{row.role_title || row.code || row.date || ''}</span></div>) : <p className="muted empty-list">No records returned yet.</p>}</div></section>
+  return <section className="page-body"><div className="empty-state"><span className="empty-icon">✦</span><span className="eyebrow">React module</span><h2>{page}</h2><p>Records are stored locally in this browser and ready for editing.</p></div>{error && <div className="api-warning">{error}</div>}<div className="data-table">{rows.length ? rows.map((row) => <div className="data-row" key={row.id}><strong>{row.full_name || row.title || row.name || row.employee_id || row.id}</strong><span>{row.email || row.department_name || row.display_level || row.status || 'Record'}</span><span>{row.role_title || row.code || row.date || ''}</span></div>) : <p className="muted empty-list">No records returned yet.</p>}</div></section>
+}
+
+function AdminPanel({ user }) {
+  return <section className="page-body"><div className="module-heading"><div><span className="eyebrow">React administration</span><h2>Admin Panel</h2><p>Manage this browser-based workspace without Django Admin.</p></div><span className="admin-badge">{user.user_type || 'ADMIN'}</span></div><div className="admin-grid"><article className="panel"><span className="eyebrow">Access</span><h3>Current administrator</h3><p className="admin-value">{user.first_name} {user.last_name}</p><p className="muted">{user.email}</p></article><article className="panel"><span className="eyebrow">Storage</span><h3>Local workspace</h3><p className="admin-value">Browser storage</p><p className="muted">Data persists on this device only.</p></article><article className="panel"><span className="eyebrow">Security</span><h3>Session status</h3><p className="admin-value">Authenticated</p><p className="muted">Sign out from the profile menu when finished.</p></article></div></section>
 }
 
 export default App
