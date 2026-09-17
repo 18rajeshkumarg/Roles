@@ -3,3 +3,12 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Legacy source and local runtime data
+legacy-django/venv/
+legacy-django/.env
+legacy-django/db.sqlite3
+legacy-django/media/
+legacy-django/logs/
+legacy-django/staticfiles/
+legacy-django/**/__pycache__/
