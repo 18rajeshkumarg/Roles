@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:frontend": "vite --host 127.0.0.1 --port 5175",
+    "dev:backend": "python backend/manage.py runserver 127.0.0.1:8000",
+    "dev:all": "concurrently -k \"npm run dev:frontend\" \"npm run dev:backend\"",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -12,7 +15,8 @@
     "@vitejs/plugin-react": "latest",
     "vite": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "concurrently": "latest"
   },
   "devDependencies": {}
 }

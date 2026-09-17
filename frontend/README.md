@@ -1,15 +1,15 @@
 # Organisation Management
 
-This folder is the complete runnable React JS project.
+This folder is the complete Organisation Management project: React frontend plus Django backend.
 
 ## Run
 
 ```powershell
 npm install
-npm run dev -- --host 127.0.0.1 --port 5175
+npm run dev:all
 ```
 
-Open http://127.0.0.1:5175/Roles/.
+Open http://127.0.0.1:5175/Roles/. Django API runs at http://127.0.0.1:8000/api/ and Admin Panel at http://127.0.0.1:8000/admin/.
 
 ## Accounts
 
@@ -17,6 +17,6 @@ Open http://127.0.0.1:5175/Roles/.
 - `eng_mgr` / `eng_mgr123`
 - `dev1` / `dev1123`
 
-The React application includes Organisation Management, dashboard, people, departments, roles, attendance, payroll, and Admin Panel screens. Data is persisted in browser storage for this React-only deployment.
+The React application includes Organisation Management, dashboard, people, departments, roles, attendance, payroll, and Admin Panel screens. React uses the Django backend, migrations, database, REST API, and administration system in `backend/`.
 
-The old Django source is preserved in `legacy-django/` for reference. It is not required to run the React project.
+The whole project is run from this folder with one command.
