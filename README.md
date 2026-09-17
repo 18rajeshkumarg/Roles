@@ -304,7 +304,7 @@ IT Tech Organisation Management System/
 
 ### React Frontend
 
-The repository includes a standalone React frontend in `frontend/`. It includes the dashboard, local authentication, organization modules, and Admin Panel. It runs without Python or Django; browser local storage provides the demo data layer.
+The repository includes a React frontend in `frontend/` connected to the Django REST backend. The dashboard, authentication, organization modules, and Admin Panel use the project's real database-backed system. Django Admin remains the complete administration interface.
 
 ```bash
 cd frontend
@@ -312,7 +312,7 @@ npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:5173/Roles/`. Demo accounts are `admin / admin123`, `eng_mgr / eng_mgr123`, and `dev1 / dev1123`.
+Start Django on port 8000, then open `http://127.0.0.1:5173/Roles/`. The React login uses the Django accounts and the Admin Panel opens Django Admin.
 
 The frontend is built and deployed automatically to GitHub Pages by `.github/workflows/frontend-pages.yml` whenever `frontend/` changes on `master`. Enable **Settings -> Pages -> GitHub Actions** in the repository, then the published URL will be:
 

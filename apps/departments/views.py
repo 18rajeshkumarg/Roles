@@ -7,7 +7,7 @@ from .serializers import DepartmentSerializer, DepartmentTreeSerializer
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
-    queryset = Department.objects.select_related('parent_department', 'head').prefetch_related('sub_departments')
+    queryset = Department.objects.select_related('parent_department').prefetch_related('sub_departments')
     serializer_class = DepartmentSerializer
     permission_classes = [IsAuthenticated]
     search_fields = ['name', 'code', 'description']

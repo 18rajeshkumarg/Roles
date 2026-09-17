@@ -5,6 +5,7 @@ from .models import Department
 class DepartmentSerializer(serializers.ModelSerializer):
     employee_count = serializers.IntegerField(read_only=True)
     head_name = serializers.SerializerMethodField()
+    head = serializers.SerializerMethodField()
     parent_name = serializers.SerializerMethodField()
     
     class Meta:
@@ -19,6 +20,10 @@ class DepartmentSerializer(serializers.ModelSerializer):
         if head:
             return head.full_name
         return None
+
+    def get_head(self, obj):
+        head = obj.head
+        return head.id if head else None
     
     def get_parent_name(self, obj):
         if obj.parent_department:
