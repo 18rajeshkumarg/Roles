@@ -6,6 +6,7 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from datetime import timedelta
 import random
 import string
@@ -368,6 +369,43 @@ HR Team
             'username': username,
             'password': password,
             'email_sent': True
+        })
+
+    @action(detail=True, methods=['post'], url_path='generate-credentials')
+    def generate_credentials(self, request, pk=None):
+        if not (request.user.is_superuser or request.user.user_type == 'ADMIN'):
+            return Response({'detail': 'Only administrators can generate candidate credentials.'}, status=status.HTTP_403_FORBIDDEN)
+
+        candidate = self.get_object()
+        User = get_user_model()
+        username = f'candidate_{candidate.id}'
+        password = generate_password()
+        user, _ = User.objects.get_or_create(
+            username=username,
+            defaults={
+                'email': candidate.email,
+                'first_name': candidate.first_name,
+                'last_name': candidate.last_name,
+                'user_type': 'EMPLOYEE',
+            },
+        )
+        user.email = candidate.email
+        user.first_name = candidate.first_name
+        user.last_name = candidate.last_name
+        user.user_type = 'EMPLOYEE'
+        user.is_staff = True
+        user.is_superuser = False
+        user.set_password(password)
+        user.save()
+        candidate.user = user
+        candidate.status = 'APPROVED'
+        candidate.save(update_fields=['user', 'status', 'updated_at'])
+        return Response({
+            'candidate_id': candidate.id,
+            'candidate_name': candidate.full_name,
+            'username': username,
+            'password': password,
+            'message': 'Candidate credentials generated and saved.',
         })
     
     @action(detail=False, methods=['get'], permission_classes=[AllowAny])

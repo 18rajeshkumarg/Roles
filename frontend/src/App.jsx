@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { clearSession, fetchDashboard, fetchModule, getAdminUrl, getStoredUser, login, setSession } from './api'
+import { clearSession, fetchDashboard, fetchModule, generateCandidateCredentials, getAdminUrl, getStoredUser, login, setSession } from './api'
 
 const navigation = [
   { label: 'Overview', icon: '◈' },
@@ -22,7 +22,10 @@ function App() {
   const [activePage, setActivePage] = useState('Overview')
   const [menuOpen, setMenuOpen] = useState(false)
 
-  if (!user) return <Login onLogin={setUser} />
+  if (!user || (user.user_type !== 'ADMIN' && !user.is_superuser)) {
+    if (user) clearSession()
+    return <Login onLogin={setUser} />
+  }
 
   function signOut() {
     clearSession()
@@ -69,6 +72,9 @@ function Login({ onLogin }) {
     setError('')
     try {
       const data = await login(username, password)
+      if (data.user.user_type !== 'ADMIN' && !data.user.is_superuser) {
+        throw new Error('This interface is restricted to administrators.')
+      }
       setSession(data)
       onLogin(data.user)
     } catch (requestError) {
@@ -113,7 +119,26 @@ function Placeholder({ page }) {
 }
 
 function AdminPanel({ user }) {
-  return <section className="page-body"><div className="module-heading"><div><span className="eyebrow">Organisation Management</span><h2>Admin Panel</h2><p>Open the complete backend administration system for users, roles, departments, employees, payroll, and settings.</p></div><span className="admin-badge">{user.user_type || 'ADMIN'}</span></div><div className="admin-grid"><article className="panel"><span className="eyebrow">Backend Admin</span><h3>Complete administration</h3><p className="admin-value">{user.first_name} {user.last_name}</p><p className="muted">Use the complete Django administration interface.</p><button className="primary-button" onClick={() => { window.location.href = getAdminUrl() }}>Open Admin Panel</button></article><article className="panel"><span className="eyebrow">Services</span><h3>Connected system</h3><p className="admin-value">React + Django</p><p className="muted">The React application uses the project's real API and database.</p></article></div></section>
+  const [candidateId, setCandidateId] = useState('')
+  const [credentials, setCredentials] = useState(null)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function generate(event) {
+    event.preventDefault()
+    setLoading(true)
+    setError('')
+    setCredentials(null)
+    try {
+      setCredentials(await generateCandidateCredentials(candidateId))
+    } catch (requestError) {
+      setError(requestError.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return <section className="page-body"><div className="module-heading"><div><span className="eyebrow">Organisation Management</span><h2>Admin Panel</h2><p>Generate hired candidate credentials and manage the complete backend system.</p></div><span className="admin-badge">{user.user_type || 'ADMIN'}</span></div><div className="admin-grid"><article className="panel"><span className="eyebrow">Candidate access</span><h3>Generate hired credentials</h3><p className="muted">Enter the Django Candidate ID. The account is saved immediately in the backend database.</p><form onSubmit={generate} className="credential-form"><label>Candidate ID<input value={candidateId} onChange={(event) => setCandidateId(event.target.value)} type="number" min="1" required /></label><button className="primary-button" disabled={loading}>{loading ? 'Generating...' : 'Generate credentials'}</button></form>{error && <p className="form-error">{error}</p>}{credentials && <div className="credential-result"><strong>{credentials.candidate_name}</strong><span>Username: {credentials.username}</span><span>Password: {credentials.password}</span><small>{credentials.message}</small></div>}</article><article className="panel"><span className="eyebrow">Backend Admin</span><h3>Complete administration</h3><p className="admin-value">{user.first_name} {user.last_name}</p><p className="muted">Open the full Django administration system for users, roles, departments, employees, payroll, and settings.</p><button className="primary-button" onClick={() => { window.location.href = getAdminUrl() }}>Open Admin Panel</button></article></div></section>
 }
 
 export default App

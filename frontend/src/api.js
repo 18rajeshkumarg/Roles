@@ -40,6 +40,10 @@ export function login(username, password) {
   return request('/accounts/login/', { method: 'POST', body: JSON.stringify({ username, password }) })
 }
 
+export function generateCandidateCredentials(candidateId) {
+  return request(`/employees/candidates/${candidateId}/generate-credentials/`, { method: 'POST' })
+}
+
 export function fetchDashboard() {
   return request('/dashboard/api/api/')
 }
