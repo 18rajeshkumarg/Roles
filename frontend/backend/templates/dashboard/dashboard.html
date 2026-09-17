@@ -656,7 +656,7 @@ new Chart(levelCtx, {
         responsive: true, 
         maintainAspectRatio: false, 
         plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } },
-        animation: { animateRotate: true, animateScale: true }
+        animation: false
     }
 });
 
@@ -686,7 +686,7 @@ new Chart(document.getElementById('departmentChart').getContext('2d'), {
             y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
             x: { grid: { display: false } }
         },
-        animation: { duration: 1000, easing: 'easeOutQuart' }
+        animation: false
     }
 });
 
@@ -715,7 +715,7 @@ new Chart(document.getElementById('trendChart').getContext('2d'), {
             y: { grid: { color: 'rgba(0,0,0,0.05)' } },
             x: { grid: { display: false } }
         },
-        animation: { duration: 1500 }
+        animation: false
     }
 });
 
@@ -1014,6 +1014,17 @@ function handleLeaveRequest(id, action) {
 .event-link { color: #0B1F3A; text-decoration: none; }
 .event-link:hover { color: #FF6B00; }
 .event-link i { font-size: 0.7rem; margin-left: 5px; color: #FF6B00; }
+
+/* Keep the dashboard stable: data and layout should not move after render. */
+body:has(.dashboard-header) * {
+    animation: none !important;
+    transition: none !important;
+}
+body:has(.dashboard-header) .stats-row .stat-card:hover,
+body:has(.dashboard-header) .quick-action-btn:hover,
+body:has(.dashboard-header) .mini-stat-card:hover {
+    transform: none !important;
+}
 </style>
 {% endblock %}
 
