@@ -1,5 +1,8 @@
 name: Deploy React frontend to GitHub Pages
 
+# Builds the React frontend and publishes it to GitHub Pages.
+# The backend API URL is injected from the repo variable VITE_API_BASE_URL.
+
 on:
   push:
     branches: [master]
