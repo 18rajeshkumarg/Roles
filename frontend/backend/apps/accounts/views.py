@@ -22,7 +22,7 @@ class OrganizationLevelViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.select_related('employee').all()
+    queryset = CustomUser.objects.select_related('employee').order_by('username').all()
     permission_classes = [IsAuthenticated]
     search_fields = ['username', 'email', 'first_name', 'last_name']
     ordering_fields = ['date_joined', 'username', 'email']

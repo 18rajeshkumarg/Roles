@@ -43,7 +43,7 @@
         <div class="stat-card stat-card-success">
             <div class="stat-icon"><i class="fas fa-user-check"></i></div>
             <div class="stat-info">
-                <div class="stat-value">{{ total_employees_count|default:0 }}</div>
+                <div class="stat-value">{{ stats.active_employees|default:0 }}</div>
                 <div class="stat-label">Active Employees</div>
                 <div class="stat-trend positive"><i class="fas fa-arrow-up"></i> 8% vs last month</div>
             </div>

@@ -132,38 +132,35 @@ def dashboard_view(request):
     if user.user_type in ['ADMIN', 'EXECUTIVE', 'MANAGER', 'HR'] or user.is_superuser:
         context['dashboard_type'] = 'executive'
         
-        # Demo data - showing sample organization stats
+        # Real organization stats from the database
         context['stats'] = {
-            'total_employees': 6,
-            'active_employees': 6,
-            'total_departments': 22,
-            'total_roles': 68,
+            'total_employees': Employee.objects.count(),
+            'active_employees': Employee.objects.filter(status='ACTIVE').count(),
+            'total_departments': Department.objects.count(),
+            'total_roles': Role.objects.count(),
         }
         
-        # Sample department data for chart
-        departments = [
-            {'name': 'Engineering', 'employee_count': 15},
-            {'name': 'Human Resources', 'employee_count': 8},
-            {'name': 'Product', 'employee_count': 6},
-            {'name': 'Finance', 'employee_count': 5},
-            {'name': 'IT Support', 'employee_count': 4},
-            {'name': 'Marketing', 'employee_count': 3},
-            {'name': 'Admin', 'employee_count': 2},
-        ]
-        context['departments'] = departments
+        # Department distribution for the chart (real employee counts)
+        context['departments'] = list(
+            Department.objects.annotate(employee_count=Count('employees'))
+            .values('name', 'employee_count')
+            .order_by('-employee_count')
+        )
         
-        # Sample level data for chart
+        # Roles grouped by level for the chart (real counts)
+        level_labels = dict(Role.LEVEL_CHOICES)
         context['roles_by_level'] = {
-            'Executive Leadership': 2,
-            'Upper Management': 5,
-            'Middle Management': 8,
-            'Senior Professional': 15,
-            'Junior Professional': 20,
-            'Support Function': 10,
+            level_labels.get(row['level'], row['level'] or 'Unspecified'): row['count']
+            for row in Role.objects.values('level').annotate(count=Count('id')).order_by('-count')
         }
         
-        # No employee data in database currently
-        context['recent_employees'] = []
+        # Most recently added employees
+        context['recent_employees'] = list(
+            Employee.objects.select_related('department', 'role')
+            .order_by('-date_of_joining')[:5]
+            .values('id', 'first_name', 'last_name', 'employee_id',
+                    'department__name', 'role__title', 'status', 'date_of_joining')
+        )
         
         # Real data from database
         context['leave_requests'] = list(LeaveRequest.objects.filter(status='PENDING').select_related('employee')[:5].values(
@@ -617,6 +614,7 @@ def candidate_test_view(request):
         return render(request, 'recruitment/aptitude_test.html', {
             'test': test,
             'questions': questions,
+            'question': questions[0] if questions else None,
             'questions_json': [
                 {
                     'id': q.id,

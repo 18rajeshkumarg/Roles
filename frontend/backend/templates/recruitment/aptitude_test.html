@@ -120,6 +120,9 @@
         });
         
         function loadQuestion(index) {
+            if (!questions || questions.length === 0) {
+                return;
+            }
             currentIndex = index;
             let q = questions[index];
             

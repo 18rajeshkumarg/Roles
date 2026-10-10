@@ -408,7 +408,7 @@ HR Team
             'message': 'Candidate credentials generated and saved.',
         })
     
-    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
     def register(self, request):
         serializer = CandidateCreateSerializer(data=request.data)
         if serializer.is_valid():
@@ -426,7 +426,7 @@ class AptitudeTestViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        return AptitudeTest.objects.filter(is_active=True)
+        return AptitudeTest.objects.filter(is_active=True).order_by('id')
     
     @action(detail=True, methods=['get'])
     def questions(self, request, pk=None):
