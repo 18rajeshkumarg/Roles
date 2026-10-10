@@ -39,7 +39,18 @@ class Payroll(models.Model):
     
     def __str__(self):
         return f"{self.employee.full_name} - {self.month}/{self.year}"
-    
+
+    MONTH_NAMES = [
+        '', 'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December',
+    ]
+
+    @property
+    def month_name(self):
+        if self.month and 1 <= self.month <= 12:
+            return self.MONTH_NAMES[self.month]
+        return str(self.month)
+
     @property
     def gross_salary(self):
         return (self.salary or 0) + (self.allowance_hra or 0) + (self.allowance_conveyance or 0) + (self.allowance_medical or 0) + (self.allowance_special or 0) + (self.allowance_other or 0)

@@ -311,22 +311,44 @@ def employees_list_view(request):
     
     employees = Employee.objects.select_related('department', 'role').order_by('-date_of_joining')
     
-    search = request.GET.get('search')
+    search = request.GET.get('search', '').strip()
+    department_filter = request.GET.get('department', '').strip()
+    level_filter = request.GET.get('level', '').strip()
+    status_filter = request.GET.get('status', '').strip()
+    
     if search:
         employees = employees.filter(
             models.Q(first_name__icontains=search) |
             models.Q(last_name__icontains=search) |
             models.Q(employee_id__icontains=search) |
+            models.Q(email__icontains=search) |
             models.Q(department__name__icontains=search)
         )
+    if department_filter:
+        employees = employees.filter(department_id=department_filter)
+    if level_filter:
+        employees = employees.filter(role__level=level_filter)
+    if status_filter:
+        employees = employees.filter(status=status_filter)
     
     paginator = Paginator(employees, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    # Build querystring (without page) so pagination keeps active filters
+    params = request.GET.copy()
+    params.pop('page', None)
+    
     return render(request, 'employees/employee_list.html', {
         'page_obj': page_obj,
-        'search': search
+        'employees': page_obj.object_list,
+        'departments': Department.objects.all().order_by('name'),
+        'levels': Role.LEVEL_CHOICES,
+        'search': search,
+        'selected_department': department_filter,
+        'selected_level': level_filter,
+        'selected_status': status_filter,
+        'base_query': params.urlencode(),
     })
 
 
@@ -702,11 +724,26 @@ def payroll_view(request):
         qs = qs.filter(employee_id=employee_id)
     
     # Calculate totals
-    total_gross = qs.aggregate(Sum('salary'))['salary__sum'] or 0
+    import calendar
+    payroll_rows = list(qs[:50])
+    total_gross = sum(p.gross_salary for p in qs)
+    total_deductions = sum(p.total_deductions for p in qs)
+    total_net = sum(p.net_salary for p in qs)
+    
+    months = [(i, calendar.month_name[i]) for i in range(1, 13)]
+    years = sorted(
+        set(Payroll.objects.values_list('year', flat=True)) | {2024, 2025, 2026},
+        reverse=True,
+    )
     
     context = {
         'title': 'Payroll',
-        'payrolls': qs[:50],
+        'payrolls': payroll_rows,
+        'total_gross': total_gross,
+        'total_deductions': total_deductions,
+        'total_net': total_net,
+        'months': months,
+        'years': years,
         'selected_year': int(year) if year else None,
         'selected_month': int(month) if month else None,
     }

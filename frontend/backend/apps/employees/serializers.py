@@ -175,9 +175,21 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 
 class WorkLogSerializer(serializers.ModelSerializer):
+    employee_name = serializers.SerializerMethodField()
+    duration_hours = serializers.SerializerMethodField()
+
     class Meta:
         model = WorkLog
-        fields = ['id', 'employee', 'date', 'activity_type', 'description', 'hours_worked', 'created_at']
+        fields = ['id', 'employee', 'employee_name', 'date', 'project', 'feature',
+                  'category', 'work_description', 'duration', 'duration_hours',
+                  'work_mode', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+    def get_employee_name(self, obj):
+        return obj.employee.full_name if obj.employee else None
+
+    def get_duration_hours(self, obj):
+        return round(obj.duration.total_seconds() / 3600, 2) if obj.duration else 0
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
@@ -258,7 +270,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class PayrollSerializer(serializers.ModelSerializer):
-    employee_name = serializers.CharField(read_only=True)
+    employee_name = serializers.SerializerMethodField()
     gross_salary = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
     total_deductions = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     net_salary = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
@@ -273,4 +285,4 @@ class PayrollSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at']
     
     def get_employee_name(self, obj):
-        return obj.employee.full_name
+        return obj.employee.full_name if obj.employee else None

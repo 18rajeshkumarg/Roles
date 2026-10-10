@@ -78,19 +78,27 @@
                 {% csrf_token %}
             </form>
         </nav>
-        
+
+        <!-- Mobile sidebar overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
         <!-- Main Content -->
         <div class="main-wrapper">
             <nav class="top-navbar">
-                <div class="navbar-brand">
-                    <div class="navbar-logo">
-                        {% if org_settings.logo %}
-                            <img src="{{ org_settings.logo.url }}" alt="Logo" style="max-height: 35px; max-width: 100%; object-fit: contain;">
-                        {% else %}
-                            <i class="fas fa-building"></i>
-                        {% endif %}
+                <div class="navbar-left">
+                    <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="navbar-brand">
+                        <div class="navbar-logo">
+                            {% if org_settings.logo %}
+                                <img src="{{ org_settings.logo.url }}" alt="Logo" style="max-height: 35px; max-width: 100%; object-fit: contain;">
+                            {% else %}
+                                <i class="fas fa-building"></i>
+                            {% endif %}
+                        </div>
+                        <span>{{ organization_name|default:"IT Organization Management System" }}</span>
                     </div>
-                    <span>{{ organization_name|default:"IT Organization Management System" }}</span>
                 </div>
                 <div class="navbar-actions">
                     <div class="notification-bell" onclick="toggleNotifications()">
@@ -190,7 +198,33 @@
         }).then(() => loadNotifications());
     }
     
-    // No toggle functionality - sidebar is always visible
+    // Sidebar toggle (mobile off-canvas navigation)
+    function toggleSidebar(force) {
+        const sidebar = document.getElementById('mainSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (!sidebar || !overlay) return;
+        const shouldOpen = typeof force === 'boolean' ? force : !sidebar.classList.contains('show');
+        sidebar.classList.toggle('show', shouldOpen);
+        overlay.classList.toggle('show', shouldOpen);
+        document.body.classList.toggle('sidebar-open', shouldOpen);
+    }
+
+    // Close the mobile sidebar after tapping a navigation link
+    document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+        link.addEventListener('click', function () {
+            if (window.innerWidth <= 992) toggleSidebar(false);
+        });
+    });
+
+    // Reset the sidebar state when the viewport grows to desktop size
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 992) toggleSidebar(false);
+    });
+
+    // Close the sidebar with the Escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') toggleSidebar(false);
+    });
 
     function timeAgo(dateString) {
         const date = new Date(dateString);
