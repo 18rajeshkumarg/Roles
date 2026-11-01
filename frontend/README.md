@@ -13,6 +13,8 @@ Open http://127.0.0.1:5175/Roles/. Django API runs at http://127.0.0.1:8000/api/
 
 ## Accounts
 
+These sample accounts are for local development only. Production seeds a separate admin password from the Render `ADMIN_PASSWORD` secret and does not create sample employee accounts.
+
 - `admin` / `admin123`
 - `eng_mgr` / `eng_mgr123`
 - `dev1` / `dev1123`

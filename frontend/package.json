@@ -13,10 +13,9 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
+    "concurrently": "10.0.6",
     "react": "latest",
     "react-dom": "latest",
-    "concurrently": "latest"
-  },
-  "devDependencies": {}
+    "vite": "8.3.5"
+  }
 }

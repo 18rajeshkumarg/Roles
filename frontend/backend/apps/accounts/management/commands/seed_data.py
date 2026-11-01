@@ -2,12 +2,15 @@
 Seed data command for IT Organization Management System
 Preloads departments, roles, and creates sample employees
 """
-from django.core.management.base import BaseCommand
+import os
+import random
+
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import get_user_model
 from apps.employees.models import Employee
 from apps.departments.models import Department
 from apps.roles.models import Role
-import random
 
 User = get_user_model()
 
@@ -20,28 +23,22 @@ class Command(BaseCommand):
         self.stdout.write('Seeding IT Organization Management System...')
         self.stdout.write(self.style.WARNING('=' * 50))
         
-        # Create Organizations Levels
         self._create_organization_levels()
-        
-        # Create Departments
         departments = self._create_departments()
-        
-        # Create Roles
         roles = self._create_roles(departments)
-        
-        # Create Admin User
         self._create_admin_user()
-        
-        # Create Sample Employees
         self._create_sample_employees(roles, departments)
         
         self.stdout.write(self.style.SUCCESS('\n' + '=' * 50))
         self.stdout.write('Seeding completed successfully!')
         self.stdout.write(self.style.SUCCESS('=' * 50))
-        self.stdout.write(self.style.SUCCESS('\nLogin credentials:'))
-        self.stdout.write(self.style.SUCCESS('  Admin: admin / admin123'))
-        self.stdout.write(self.style.SUCCESS('  Manager sample: eng_mgr / eng_mgr123'))
-        self.stdout.write(self.style.SUCCESS('  Employee sample: dev1 / dev1123'))
+        if settings.DEBUG:
+            self.stdout.write(self.style.SUCCESS('\nDevelopment login credentials:'))
+            self.stdout.write(self.style.SUCCESS('  Admin: admin / admin123'))
+            self.stdout.write(self.style.SUCCESS('  Manager sample: eng_mgr / eng_mgr123'))
+            self.stdout.write(self.style.SUCCESS('  Employee sample: dev1 / dev1123'))
+        else:
+            self.stdout.write('  Production admin password is configured by ADMIN_PASSWORD.')
     
     def _create_organization_levels(self):
         self.stdout.write('\nCreating organization levels...')
@@ -61,7 +58,7 @@ class Command(BaseCommand):
                 name=name,
                 defaults={'display_name': display, 'level_order': order}
             )
-            self.stdout.write(f'  ✓ {display}')
+            self.stdout.write(f'  [OK] {display}')
     
     def _create_departments(self):
         self.stdout.write('\nCreating departments...')
@@ -90,7 +87,7 @@ class Command(BaseCommand):
                 dept.description = dept_data['description']
                 dept.save(update_fields=['name', 'code', 'description', 'updated_at'])
             departments[dept_data['code']] = dept
-            self.stdout.write(f'  ✓ {dept.name}')
+            self.stdout.write(f'  [OK] {dept.name}')
         
         return departments
     
@@ -153,21 +150,34 @@ class Command(BaseCommand):
                 }
             )
             roles[role_data['title']] = role
-            self.stdout.write(f'  ✓ {role.title} ({role.get_level_display()})')
+            self.stdout.write(f'  [OK] {role.title} ({role.get_level_display()})')
         
         return roles
     
     def _create_admin_user(self):
-        if not User.objects.filter(username='admin').exists():
-            admin = User.objects.create_superuser(
-                username='admin',
-                email='admin@itorg.com',
-                password='admin123',
-                first_name='System',
-                last_name='Administrator',
-                user_type='ADMIN'
-            )
-            self.stdout.write(self.style.SUCCESS(f'\n✓ Admin user created: {admin.username}'))
+        password = os.environ.get('ADMIN_PASSWORD')
+        if not password and settings.DEBUG:
+            password = 'admin123'
+        if not password:
+            raise CommandError('ADMIN_PASSWORD must be set when DEBUG is disabled.')
+
+        admin, created = User.objects.get_or_create(
+            username='admin',
+            defaults={
+                'email': 'admin@itorg.com',
+                'first_name': 'System',
+                'last_name': 'Administrator',
+                'user_type': 'ADMIN',
+            },
+        )
+        admin.is_staff = True
+        admin.is_superuser = True
+        admin.user_type = 'ADMIN'
+        if created or not admin.has_usable_password() or admin.check_password('admin123'):
+            admin.set_password(password)
+        admin.save(update_fields=['password', 'is_staff', 'is_superuser', 'user_type'])
+        action = 'created' if created else 'secured'
+        self.stdout.write(self.style.SUCCESS(f'\n[OK] Admin user {action}: {admin.username}'))
     
     def _create_sample_employees(self, roles, departments):
         self.stdout.write('\nCreating sample employees...')
@@ -203,6 +213,16 @@ class Command(BaseCommand):
             {'username': 'it_support', 'first_name': 'Brittany', 'last_name': 'Scott', 'role': 'IT Support Specialist', 'department': 'IT', 'manager': 'cto'},
             {'username': 'admin_asst', 'first_name': 'Tyler', 'last_name': 'Green', 'role': 'Administrative Assistant', 'department': 'ADM', 'manager': 'ceo'},
         ]
+
+        if not settings.DEBUG:
+            sample_users = User.objects.filter(
+                username__in=[employee['username'] for employee in employees_data]
+            )
+            for user in sample_users:
+                user.set_unusable_password()
+                user.save(update_fields=['password'])
+            self.stdout.write('Skipping sample employee accounts outside development.')
+            return
         
         # Create mapping from username to User
         user_map = {}
@@ -244,5 +264,5 @@ class Command(BaseCommand):
                     }
                 )
                 
-                status_icon = '✓' if created else 'o'
+                status_icon = '[OK]' if created else '[EXISTS]'
                 self.stdout.write(f'  {status_icon} {employee.full_name} - {role.title}')

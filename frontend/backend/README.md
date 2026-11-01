@@ -356,6 +356,8 @@ python3 manage.py runserver
 
 ## Default Login Credentials
 
+The sample credentials below are for local development only. In production, set `ADMIN_PASSWORD` as a secret; the Render blueprint generates it automatically. Sample employee accounts are not created when `DEBUG` is disabled.
+
 | Role | Username | Password |
 |------|----------|----------|
 | System Admin | admin | (set during seed_data) |
