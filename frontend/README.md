@@ -25,7 +25,7 @@ The whole project is run from this folder with one command.
 
 ## SketricGen chat
 
-The published SketricGen Brand Agent is embedded on both the React site (`index.html`) and the Django site (the shared `backend/templates/base.html` template). Both use agent ID `skbrand_38c5aef5-bf35-4f10-a954-75f8b6137aba`.
+The published SketricGen Brand Agent is embedded on both the React site (`index.html`) and the Django site (the shared `backend/templates/base.html` template). Both use agent ID `skbrand_38c5aef5-bf35-4f10-a954-75f8b6137aba`, the compact floating-pill layout, and load the external widget after the page load during browser idle time to keep initial rendering responsive.
 
 To connect Telegram to this same agent:
 

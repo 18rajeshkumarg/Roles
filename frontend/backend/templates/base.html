@@ -246,6 +246,34 @@
     
     </script>
     {% block extra_js %}{% endblock %}
-    <script async src="https://jswidget.sketricgen.ai/widget-embed.js" data-agent-id="skbrand_38c5aef5-bf35-4f10-a954-75f8b6137aba"></script>
+    <script>
+        (() => {
+            const loadChatWidget = () => {
+                if (document.querySelector('script[data-sketricgen-widget]')) return;
+
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://jswidget.sketricgen.ai/widget-embed.js';
+                script.dataset.agentId = 'skbrand_38c5aef5-bf35-4f10-a954-75f8b6137aba';
+                script.dataset.layout = 'floating';
+                script.dataset.sketricgenWidget = 'true';
+                document.body.appendChild(script);
+            };
+
+            const scheduleChatWidget = () => {
+                if ('requestIdleCallback' in window) {
+                    window.requestIdleCallback(loadChatWidget, { timeout: 1500 });
+                } else {
+                    window.setTimeout(loadChatWidget, 500);
+                }
+            };
+
+            if (document.readyState === 'complete') {
+                scheduleChatWidget();
+            } else {
+                window.addEventListener('load', scheduleChatWidget, { once: true });
+            }
+        })();
+    </script>
 </body>
 </html>
