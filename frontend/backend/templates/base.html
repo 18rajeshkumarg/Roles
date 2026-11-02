@@ -244,83 +244,8 @@
         }
     });
     
-    // ChatBot Functions
-    function toggleChatBot() {
-        document.getElementById('chatBotWidget').classList.toggle('show');
-    }
-
-    function handleChatBotKey(e) {
-        if (e.key === 'Enter') {
-            sendChatBotMessage();
-        }
-    }
-
-    function sendChatBotMessage() {
-        const input = document.getElementById('chatBotInput');
-        const message = input.value.trim();
-        if (!message) return;
-
-        const messagesDiv = document.getElementById('chatBotMessages');
-        const userMsg = document.createElement('div');
-        userMsg.className = 'chatbot-message user';
-        userMsg.textContent = message;
-        messagesDiv.appendChild(userMsg);
-
-        input.value = '';
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-        const loading = document.createElement('div');
-        loading.className = 'chatbot-message bot';
-        loading.textContent = 'Typing...';
-        messagesDiv.appendChild(loading);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-        fetch('/api/dashboard/chatbot/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: message })
-        })
-        .then(r => r.json())
-        .then(data => {
-            messagesDiv.removeChild(loading);
-            const botMsg = document.createElement('div');
-            botMsg.className = 'chatbot-message bot';
-            botMsg.textContent = data.response;
-            messagesDiv.appendChild(botMsg);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        })
-        .catch(err => {
-            messagesDiv.removeChild(loading);
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'chatbot-message bot';
-            errorMsg.textContent = 'Sorry, something went wrong. Please try again.';
-            messagesDiv.appendChild(errorMsg);
-        });
-    }
     </script>
     {% block extra_js %}{% endblock %}
-    
-    <!-- ChatBot Widget -->
-    <div class="chatbot-toggle" onclick="toggleChatBot()">
-        <i class="fas fa-robot"></i>
-    </div>
-    <div class="chatbot-widget" id="chatBotWidget">
-        <div class="chatbot-header">
-            <span><i class="fas fa-robot"></i> IT Org Assistant</span>
-            <button onclick="toggleChatBot()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="chatbot-messages" id="chatBotMessages">
-            <div class="chatbot-message bot">
-                Hello! I'm here to help with your organization. Ask me about employees, departments, projects, dashboard, or any other topics!
-            </div>
-        </div>
-        <div class="chatbot-input">
-            <input type="text" id="chatBotInput" placeholder="Type your question..." onkeypress="handleChatBotKey(event)">
-            <button onclick="sendChatBotMessage()"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
+    <script async src="https://jswidget.sketricgen.ai/widget-embed.js" data-agent-id="skbrand_38c5aef5-bf35-4f10-a954-75f8b6137aba"></script>
 </body>
 </html>
