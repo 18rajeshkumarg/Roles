@@ -5,38 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#10251f" />
     <title>Roles | Organization Workspace</title>
+    <link rel="preconnect" href="https://jswidget.sketricgen.ai" />
+    <link rel="preconnect" href="https://www.sketricgen.ai" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      (() => {
-        const loadChatWidget = () => {
-          if (document.querySelector('script[data-sketricgen-widget]')) return
-
-          const script = document.createElement('script')
-          script.async = true
-          script.src = 'https://jswidget.sketricgen.ai/widget-embed.js'
-          script.dataset.agentId = 'skbrand_38c5aef5-bf35-4f10-a954-75f8b6137aba'
-          script.dataset.layout = 'floating'
-          script.dataset.sketricgenWidget = 'true'
-          document.body.appendChild(script)
-        }
-
-        const scheduleChatWidget = () => {
-          if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(loadChatWidget, { timeout: 1500 })
-          } else {
-            window.setTimeout(loadChatWidget, 500)
-          }
-        }
-
-        if (document.readyState === 'complete') {
-          scheduleChatWidget()
-        } else {
-          window.addEventListener('load', scheduleChatWidget, { once: true })
-        }
-      })()
-    </script>
+    <script async src="https://jswidget.sketricgen.ai/widget-embed.js" data-agent-id="skbrand_38c5aef5-bf35-4f10-a954-75f8b6137aba"></script>
   </body>
 </html>
